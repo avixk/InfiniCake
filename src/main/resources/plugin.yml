@@ -1,0 +1,12 @@
+name: InfiniCake
+version: 1.0
+main: me.avixk.InfiniCake.Main
+api-version: 1.16
+description: Adds infinite cakes
+authors: [avixk]
+commands:
+  infinicake:
+    description: Gives you an infinicake!
+permissions:
+  infinicake.admin:
+    default: op

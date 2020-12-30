@@ -1,0 +1,42 @@
+
+# Spawn particles when an infinicake respawns after being eaten
+infinicake_respawn_particles: true
+
+# Play a chicken egg pop sound when an infinicake respawns
+infinicake_respawn_pop: true
+
+# set to true to set the block to cake during respawn instead of spawning a fallingblock
+disable_falling_cake: false
+
+# true will drop an infinicake when an infinicake is broken in survival mode
+drop_infinicake_on_break: true
+
+# you may change the name of the infinicake item, set to '' to disable
+infinicake_item_name: '&bInfiniCake'
+
+# true allows players to put infinity books on cakes in anvils.
+use_anvil_recipe: false
+# levels required to put an infinity book on a cake (if enabled), anything over 39 will not work correctly.
+anvil_cost: 30
+
+# Adds a crafting recipe for infinicakes
+# Delete entire ingredient entry to have blank crafting slots
+infinicake_crafting_recipe: true
+recipe:
+  shapeless:
+    enabled: true
+    ingredients: # Use up to 9 ingredients, A-I
+      A: TOTEM_OF_UNDYING
+      B: CAKE
+  shaped:
+    enabled: false
+    ingredients: # set to AIR to disable
+      top_left: DIAMOND
+      top_middle: DIAMOND
+      top_right: DIAMOND
+      mid_left: DIAMOND
+      mid_middle: CAKE
+      mid_right: DIAMOND
+      bot_left: DIAMOND
+      bot_middle: TOTEM_OF_UNDYING
+      bot_right: DIAMOND
