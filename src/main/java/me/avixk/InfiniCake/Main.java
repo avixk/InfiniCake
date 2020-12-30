@@ -14,6 +14,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -255,10 +258,21 @@ public class Main extends JavaPlugin implements Listener {
         }
     }
 
+    @EventHandler
+    public void onCakeMurder(PlayerDeathEvent e){
+        if(!(e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent))return;
+        EntityDamageByEntityEvent ev = (EntityDamageByEntityEvent) e.getEntity().getLastDamageCause();
+        if(!ev.getCause().equals(EntityDamageEvent.DamageCause.FALLING_BLOCK))return;
+        if(ev.getDamager() instanceof FallingBlock){
+            FallingBlock f = (FallingBlock) ev.getDamager();
+            if(!f.getBlockData().getMaterial().equals(Material.CAKE))return;
+            e.setDeathMessage(e.getDeathMessage().replace("falling block","falling " + f.getBlockData().getMaterial().name().toLowerCase().replace("_"," ")));
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onCakePlace(BlockPlaceEvent e){
         if(e.isCancelled())return;
-       // if(e.getBlockPlaced().getBlockData() instanceof Cake){
             if(e.getItemInHand().getType().equals(Material.CAKE)){
                 if(e.getItemInHand().hasItemMeta()){
                     if(e.getItemInHand().getItemMeta().hasEnchant(Enchantment.ARROW_INFINITE)){
@@ -266,7 +280,6 @@ public class Main extends JavaPlugin implements Listener {
                     }
                 }
             }
-       // }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -278,7 +291,7 @@ public class Main extends JavaPlugin implements Listener {
         CakeFile.removeInfiniCake(e.getBlock());
         if(e.getPlayer().getGameMode().equals(GameMode.CREATIVE))return;
         if(getConfig().getBoolean("drop_infinicake_on_break")){
-            e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation()/*.add(.5,.2,.5)*/,infinicake);
+            e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(),infinicake);
         }
     }
 }
