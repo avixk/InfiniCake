@@ -25,6 +25,7 @@ import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Map;
 
@@ -224,7 +225,24 @@ public class Main extends JavaPlugin implements Listener {
             }
             CakeFile.removeInfiniCake(loc.getBlock());
             FallingBlock b = loc.getWorld().spawnFallingBlock(tospawn,Bukkit.createBlockData(Material.CAKE));
+            b.setHurtEntities(true);
+            b.setDropItem(false);
             b.setMetadata("infinicake",new FixedMetadataValue(this,""));
+            final int[] ticks = {0};
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if(ticks[0]++ > 100){
+                        cancel();
+                    }
+                    if(b.isDead()){
+                        if(!b.getLocation().getBlock().getType().equals(Material.CAKE)){
+                            b.getWorld().dropItemNaturally(b.getLocation().clone().add(-.5,0,-.5),infinicake.clone());
+                        }
+                        cancel();
+                    }
+                }
+            }.runTaskTimer(this,1,1);
         }
         if(getConfig().getBoolean("infinicake_respawn_particles"))tospawn.getWorld().spawnParticle(Particle.BLOCK_DUST, tospawn.clone().add(0,.2,0), 50, .5,.3,.5, Material.CAKE.createBlockData());
         if(getConfig().getBoolean("infinicake_respawn_pop"))tospawn.getWorld().playSound(tospawn.clone().add(0,.5,0), Sound.ENTITY_CHICKEN_EGG,1,.7F);
