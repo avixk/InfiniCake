@@ -30,12 +30,8 @@ public class CakeFile {
                 try {
                     cakeConfig.save(cakeFile);
                     cakeConfig.load(cakeFile);
-                } catch (IOException e) {
-                    Bukkit.getLogger().severe("Cannot save cake file!");
-                    e.printStackTrace();
-                } catch (InvalidConfigurationException e) {
-                    Bukkit.getLogger().severe("Cannot load cake file!");
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    //Bukkit.getLogger().severe("Cannot save cake file!");//
                 }
             }
         });
@@ -44,7 +40,7 @@ public class CakeFile {
 
 
     static void addInfiniCake(Block block){
-        cakeConfig.set(locToString(block.getLocation()),0);
+        cakeConfig.set(locToString(block.getLocation()),1);
         save();
     }
     static void removeInfiniCake(Block block){
@@ -55,7 +51,7 @@ public class CakeFile {
         save();
     }
     static boolean isInfiniCake(Block block){
-        if(!block.getType().equals(Material.CAKE)) return false;
+        //if(!block.getType().equals(Material.CAKE)) return false;
         return cakeConfig.contains(locToString(block.getLocation()));
     }
 

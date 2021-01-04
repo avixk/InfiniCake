@@ -1,6 +1,8 @@
 package me.avixk.InfiniCake;
 
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Cake;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -10,9 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -201,7 +201,7 @@ public class Main extends JavaPlugin implements Listener {
                                 Bukkit.getScheduler().scheduleSyncDelayedTask(Main.this, new Runnable() {
                                     @Override
                                     public void run() {
-                                        respawnCake(e.getClickedBlock().getLocation());
+                                        respawnCake(e.getClickedBlock().getLocation(),true,true);
                                     }
                                 },10);
                             }
@@ -212,19 +212,22 @@ public class Main extends JavaPlugin implements Listener {
         }
     }
 
-    public void respawnCake(Location loc){
+    public void respawnCake(Location loc, boolean drop, boolean effects){
+        CakeFile.removeInfiniCake(loc.getBlock());
         Location tospawn = loc;
         if(getConfig().getBoolean("disable_falling_cake")){
             loc.getBlock().setType(Material.CAKE);
             tospawn = loc.add(.5,0,.5);
         }else{
-            int x = 0;
-            while(x < 10){
-                x++;
-                if(!loc.clone().add(0,x,0).getBlock().getType().isAir()){
-                    break;
+            if(drop){
+                int x = 0;
+                while(x < 10){
+                    x++;
+                    if(!loc.clone().add(0,x,0).getBlock().getType().isAir()){
+                        break;
+                    }
+                    tospawn = loc.clone().add(.5,x,.5);
                 }
-                tospawn = loc.clone().add(.5,x,.5);
             }
             CakeFile.removeInfiniCake(loc.getBlock());
             FallingBlock b = loc.getWorld().spawnFallingBlock(tospawn,Bukkit.createBlockData(Material.CAKE));
@@ -239,7 +242,7 @@ public class Main extends JavaPlugin implements Listener {
                         cancel();
                     }
                     if(b.isDead()){
-                        if(!b.getLocation().getBlock().getType().equals(Material.CAKE)){
+                        if(!b.getLocation().getBlock().getType().equals(Material.CAKE) && getConfig().getBoolean("drop_infinicake_on_break")){
                             b.getWorld().dropItemNaturally(b.getLocation().clone().add(-.5,0,-.5),infinicake.clone());
                         }
                         cancel();
@@ -247,8 +250,8 @@ public class Main extends JavaPlugin implements Listener {
                 }
             }.runTaskTimer(this,1,1);
         }
-        if(getConfig().getBoolean("infinicake_respawn_particles"))tospawn.getWorld().spawnParticle(Particle.BLOCK_DUST, tospawn.clone().add(0,.2,0), 50, .5,.3,.5, Material.CAKE.createBlockData());
-        if(getConfig().getBoolean("infinicake_respawn_pop"))tospawn.getWorld().playSound(tospawn.clone().add(0,.5,0), Sound.ENTITY_CHICKEN_EGG,1,.7F);
+        if(effects && getConfig().getBoolean("infinicake_respawn_particles"))tospawn.getWorld().spawnParticle(Particle.BLOCK_DUST, tospawn.clone().add(0,.2,0), 50, .5,.3,.5, Material.CAKE.createBlockData());
+        if(effects && getConfig().getBoolean("infinicake_respawn_pop"))tospawn.getWorld().playSound(tospawn.clone().add(0,.5,0), Sound.ENTITY_CHICKEN_EGG,1,.7F);
     }
 
     @EventHandler
@@ -267,6 +270,74 @@ public class Main extends JavaPlugin implements Listener {
             FallingBlock f = (FallingBlock) ev.getDamager();
             if(!f.getBlockData().getMaterial().equals(Material.CAKE))return;
             e.setDeathMessage(e.getDeathMessage().replace("falling block","falling " + f.getBlockData().getMaterial().name().toLowerCase().replace("_"," ")));
+        }
+    }
+
+    @EventHandler
+    public void onCakePhysics(BlockPhysicsEvent e){
+        if(e.getBlock().getType().equals(Material.CAKE)){
+            Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+                @Override
+                public void run() {
+                    if(e.getBlock().getType().isAir()){
+                        if(CakeFile.isInfiniCake(e.getBlock())){
+
+                            //Bukkit.getPlayer("avixk").sendMessage("CAKEPHYSICS");
+                            respawnCake(e.getBlock().getLocation().add(.5,0,.5),false, false);
+                            /*if(getConfig().getBoolean("drop_infinicake_on_break")){
+                                e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(),infinicake.clone());
+                            }*/
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    @EventHandler
+    public void onPistonRetractCake(BlockPistonRetractEvent e){
+       /* if(e.getBlock().getRelative(BlockFace.UP).getType().equals(Material.CAKE)){
+            if(CakeFile.isInfiniCake(e.getBlock().getRelative(BlockFace.UP))){
+                Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+                    @Override
+                    public void run() {
+                        Bukkit.getPlayer("avixk").sendMessage("CAKEPISTONRETRACT1");
+                        respawnCake(e.getBlock().getRelative(BlockFace.UP).getLocation().add(.5,0,.5),false,false);
+                    }
+                },5);
+                //Bukkit.getPlayer("avixk").sendMessage("CAKEPISTONRETRACt");
+            }
+        }*/
+        for(Block b : e.getBlocks()){
+            if(b.getRelative(BlockFace.UP).getType().equals(Material.CAKE)){
+                Block cake = b.getRelative(BlockFace.UP);
+                if(CakeFile.isInfiniCake(cake)){
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+                        @Override
+                        public void run() {
+                            if(cake.getType().isAir()){
+                                //Bukkit.getPlayer("avixk").sendMessage("CAKEPISTONRETRACT2");
+                                respawnCake(cake.getLocation().add(.5,0,.5),false,false);
+                            }
+                        }
+                    },5);
+                }
+            }
+        }
+    }
+    @EventHandler
+    public void onPistonExtendCake(BlockPistonExtendEvent e){
+        for(Block b : e.getBlocks()){
+            if(b.getType().equals(Material.CAKE)){
+                if(CakeFile.isInfiniCake(b)){
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+                        @Override
+                        public void run() {//Bukkit.getPlayer("avixk").sendMessage("CAKEPISTONEXTEND");
+                            respawnCake(b.getLocation(),true,true);
+                        }
+                    },10);
+                }
+            }
         }
     }
 
