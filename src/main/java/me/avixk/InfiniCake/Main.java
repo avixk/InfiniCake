@@ -8,6 +8,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -231,7 +233,7 @@ public class Main extends JavaPlugin implements Listener {
             }
             CakeFile.removeInfiniCake(loc.getBlock());
             FallingBlock b = loc.getWorld().spawnFallingBlock(tospawn,Bukkit.createBlockData(Material.CAKE));
-            b.setHurtEntities(true);
+            b.setHurtEntities(getConfig().getBoolean("falling_cakes_destroy_items") || getConfig().getBoolean("falling_cakes_damage_living_entities"));
             b.setDropItem(false);
             b.setMetadata("infinicake",new FixedMetadataValue(this,""));
             final int[] ticks = {0};
@@ -269,7 +271,21 @@ public class Main extends JavaPlugin implements Listener {
         if(ev.getDamager() instanceof FallingBlock){
             FallingBlock f = (FallingBlock) ev.getDamager();
             if(!f.getBlockData().getMaterial().equals(Material.CAKE))return;
-            e.setDeathMessage(e.getDeathMessage().replace("falling block","falling " + f.getBlockData().getMaterial().name().toLowerCase().replace("_"," ")));
+            if(getConfig().getBoolean("falling_cakes_damage_living_entities"))
+                e.setDeathMessage(e.getDeathMessage().replace("falling block","falling " + f.getBlockData().getMaterial().name().toLowerCase().replace("_"," ")));
+        }
+    }
+
+    @EventHandler
+    public void onCakeStomp(EntityDamageByEntityEvent e){
+        if(!e.getCause().equals(EntityDamageEvent.DamageCause.FALLING_BLOCK))return;
+        if(e.getDamager() instanceof FallingBlock){
+            FallingBlock f = (FallingBlock) e.getDamager();
+            if(!f.getBlockData().getMaterial().equals(Material.CAKE))return;
+
+            if(e.getEntity() instanceof Item && !getConfig().getBoolean("falling_cakes_destroy_items"))e.setCancelled(true);
+            if(e.getEntity() instanceof LivingEntity && !getConfig().getBoolean("falling_cakes_damage_living_entities"))e.setCancelled(true);
+
         }
     }
 

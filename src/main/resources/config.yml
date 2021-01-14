@@ -11,6 +11,12 @@ disable_falling_cake: false
 # true will drop an infinicake when an infinicake is broken in survival mode
 drop_infinicake_on_break: true
 
+# determines if the cake can kill items by falling on them
+falling_cakes_destroy_items: false
+
+# determines if falling cakes can damage players and mobs
+falling_cakes_damage_living_entities: true
+
 # you may change the name of the infinicake item, set to '' to disable
 infinicake_item_name: '&bInfiniCake'
 
