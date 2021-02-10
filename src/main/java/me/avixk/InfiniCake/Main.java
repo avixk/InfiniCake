@@ -32,12 +32,16 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Main extends JavaPlugin implements Listener {
     static Plugin plugin;
     static ItemStack infinicake = null;
     static boolean useAnvil = false;
+    static List<Block> currentlyRespawningCakes = new ArrayList<>();
     @Override
     public void onEnable() {
         plugin = this;
@@ -215,6 +219,10 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public void respawnCake(Location loc, boolean drop, boolean effects){
+        if(currentlyRespawningCakes.contains(loc.getBlock())){
+            return;
+        }
+        currentlyRespawningCakes.add(loc.getBlock());
         CakeFile.removeInfiniCake(loc.getBlock());
         Location tospawn = loc;
         if(getConfig().getBoolean("disable_falling_cake")){
@@ -231,7 +239,6 @@ public class Main extends JavaPlugin implements Listener {
                     tospawn = loc.clone().add(.5,x,.5);
                 }
             }
-            CakeFile.removeInfiniCake(loc.getBlock());
             FallingBlock b = loc.getWorld().spawnFallingBlock(tospawn,Bukkit.createBlockData(Material.CAKE));
             b.setHurtEntities(getConfig().getBoolean("falling_cakes_destroy_items") || getConfig().getBoolean("falling_cakes_damage_living_entities"));
             b.setDropItem(false);
@@ -241,13 +248,17 @@ public class Main extends JavaPlugin implements Listener {
                 @Override
                 public void run() {
                     if(ticks[0]++ > 100){
+                        currentlyRespawningCakes.remove(b);
                         cancel();
+                        return;
                     }
                     if(b.isDead()){
                         if(!b.getLocation().getBlock().getType().equals(Material.CAKE) && getConfig().getBoolean("drop_infinicake_on_break")){
                             b.getWorld().dropItemNaturally(b.getLocation().clone().add(-.5,0,-.5),infinicake.clone());
                         }
+                        currentlyRespawningCakes.remove(b);
                         cancel();
+                        return;
                     }
                 }
             }.runTaskTimer(this,1,1);

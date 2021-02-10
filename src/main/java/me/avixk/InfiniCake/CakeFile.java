@@ -19,36 +19,43 @@ public class CakeFile {
         try {
             cakeFile.createNewFile();
             cakeConfig.load(cakeFile);
+            Bukkit.getLogger().info("Cakefile loaded successfully");
         } catch (Exception e) {
-
+            Bukkit.getLogger().warning("Cakefile could not be loaded!! If this is the first time the plugin has been loaded, ignore this.");
         }
     }
     static void save(){
-        Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
+        /*Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
             @Override
-            public void run() {
+            public void run() {*/
                 try {
-                    cakeConfig.save(cakeFile);
-                    cakeConfig.load(cakeFile);
+                    cakeConfig.save(cakeFile);//TODO FIX NPE
+                    //cakeConfig.load(cakeFile);
                 } catch (Exception e) {
-                    //Bukkit.getLogger().severe("Cannot save cake file!");//
+                    e.printStackTrace();
+                    Bukkit.getLogger().info("Cannot save cake file! You probably lost a cake!!");
                 }
-            }
-        });
+           /* }
+        });*/
     }
 
 
 
     static void addInfiniCake(Block block){
-        cakeConfig.set(locToString(block.getLocation()),1);
-        save();
+        String lstring = locToString(block.getLocation());
+        cakeConfig.set(lstring,1);
+        Bukkit.getLogger().info("Added infinicake at " + lstring);
+        save();//TODO THIS THROWS NPE
     }
     static void removeInfiniCake(Block block){
         String s = locToString(block.getLocation());
         if(cakeConfig.contains(s)){
             cakeConfig.set(s,null);
+            Bukkit.getLogger().info("Removed infinicake at " + s);
+            save();
+        }else{
+            Bukkit.getLogger().info("InfiniCake at " + s + " was supposed to be removed, but was not found in config?");
         }
-        save();
     }
     static boolean isInfiniCake(Block block){
         //if(!block.getType().equals(Material.CAKE)) return false;
