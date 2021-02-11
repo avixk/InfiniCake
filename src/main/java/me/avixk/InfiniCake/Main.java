@@ -248,7 +248,7 @@ public class Main extends JavaPlugin implements Listener {
                 @Override
                 public void run() {
                     if(ticks[0]++ > 100){
-                        currentlyRespawningCakes.remove(b);
+                        currentlyRespawningCakes.remove(loc.getBlock());
                         cancel();
                         return;
                     }
@@ -256,7 +256,7 @@ public class Main extends JavaPlugin implements Listener {
                         if(!b.getLocation().getBlock().getType().equals(Material.CAKE) && getConfig().getBoolean("drop_infinicake_on_break")){
                             b.getWorld().dropItemNaturally(b.getLocation().clone().add(-.5,0,-.5),infinicake.clone());
                         }
-                        currentlyRespawningCakes.remove(b);
+                        currentlyRespawningCakes.remove(loc.getBlock());
                         cancel();
                         return;
                     }
