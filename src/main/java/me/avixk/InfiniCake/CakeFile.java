@@ -2,13 +2,10 @@ package me.avixk.InfiniCake;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 
 public class CakeFile {
     static File cakeFile;
@@ -29,7 +26,7 @@ public class CakeFile {
             @Override
             public void run() {*/
                 try {
-                    cakeConfig.save(cakeFile);//TODO FIX NPE
+                    cakeConfig.save(cakeFile);
                     //cakeConfig.load(cakeFile);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -44,14 +41,14 @@ public class CakeFile {
     static void addInfiniCake(Block block){
         String lstring = locToString(block.getLocation());
         cakeConfig.set(lstring,1);
-        Bukkit.getLogger().info("Added infinicake at " + lstring);
+        //Bukkit.getLogger().info("Added infinicake at " + lstring);
         save();//TODO THIS THROWS NPE
     }
     static void removeInfiniCake(Block block){
         String s = locToString(block.getLocation());
         if(cakeConfig.contains(s)){
             cakeConfig.set(s,null);
-            Bukkit.getLogger().info("Removed infinicake at " + s);
+            //Bukkit.getLogger().info("Removed infinicake at " + s);
             save();
         }else{
             Bukkit.getLogger().info("InfiniCake at " + s + " was supposed to be removed, but was not found in config?");

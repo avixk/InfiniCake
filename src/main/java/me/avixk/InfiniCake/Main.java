@@ -26,16 +26,13 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Main extends JavaPlugin implements Listener {
     static Plugin plugin;
@@ -199,6 +196,10 @@ public class Main extends JavaPlugin implements Listener {
         if(e.getClickedBlock().getBlockData() instanceof Cake){
             Cake cake = (Cake) e.getClickedBlock().getBlockData();
             if(CakeFile.isInfiniCake(e.getClickedBlock())){
+                if(e.getPlayer().getFoodLevel() < 20){
+                    e.getPlayer().setSaturation((float) (e.getPlayer().getSaturation() + getConfig().getDouble("cake_saturation") - 0.4F));
+                    e.getPlayer().setFoodLevel((e.getPlayer().getFoodLevel() + getConfig().getInt("cake_food_level") - 2));
+                }
                 if(cake.getBites() >= 6){
                     Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
                         @Override
@@ -233,7 +234,7 @@ public class Main extends JavaPlugin implements Listener {
                 int x = 0;
                 while(x < 10){
                     x++;
-                    if(!loc.clone().add(0,x,0).getBlock().getType().isAir()){
+                    if(!loc.clone().add(0,x,0).getBlock().isPassable()){
                         break;
                     }
                     tospawn = loc.clone().add(.5,x,.5);
@@ -296,7 +297,6 @@ public class Main extends JavaPlugin implements Listener {
 
             if(e.getEntity() instanceof Item && !getConfig().getBoolean("falling_cakes_destroy_items"))e.setCancelled(true);
             if(e.getEntity() instanceof LivingEntity && !getConfig().getBoolean("falling_cakes_damage_living_entities"))e.setCancelled(true);
-
         }
     }
 
@@ -308,12 +308,7 @@ public class Main extends JavaPlugin implements Listener {
                 public void run() {
                     if(e.getBlock().getType().isAir()){
                         if(CakeFile.isInfiniCake(e.getBlock())){
-
-                            //Bukkit.getPlayer("avixk").sendMessage("CAKEPHYSICS");
                             respawnCake(e.getBlock().getLocation().add(.5,0,.5),false, false);
-                            /*if(getConfig().getBoolean("drop_infinicake_on_break")){
-                                e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(),infinicake.clone());
-                            }*/
                         }
                     }
                 }
@@ -323,18 +318,6 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPistonRetractCake(BlockPistonRetractEvent e){
-       /* if(e.getBlock().getRelative(BlockFace.UP).getType().equals(Material.CAKE)){
-            if(CakeFile.isInfiniCake(e.getBlock().getRelative(BlockFace.UP))){
-                Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-                    @Override
-                    public void run() {
-                        Bukkit.getPlayer("avixk").sendMessage("CAKEPISTONRETRACT1");
-                        respawnCake(e.getBlock().getRelative(BlockFace.UP).getLocation().add(.5,0,.5),false,false);
-                    }
-                },5);
-                //Bukkit.getPlayer("avixk").sendMessage("CAKEPISTONRETRACt");
-            }
-        }*/
         for(Block b : e.getBlocks()){
             if(b.getRelative(BlockFace.UP).getType().equals(Material.CAKE)){
                 Block cake = b.getRelative(BlockFace.UP);
@@ -343,7 +326,6 @@ public class Main extends JavaPlugin implements Listener {
                         @Override
                         public void run() {
                             if(cake.getType().isAir()){
-                                //Bukkit.getPlayer("avixk").sendMessage("CAKEPISTONRETRACT2");
                                 respawnCake(cake.getLocation().add(.5,0,.5),false,false);
                             }
                         }

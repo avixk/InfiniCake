@@ -11,6 +11,10 @@ disable_falling_cake: false
 # true will drop an infinicake when an infinicake is broken in survival mode
 drop_infinicake_on_break: true
 
+# amount of food saturation to give when eating cake
+cake_saturation: 2 # (Double) vanilla cakes give 0.4 saturation
+cake_food_level: 2 # (Integer) vanilla cakes give 2 food (IF THIS IS NOT 2, VISUAL GLITCHES OCCUR!)
+
 # determines if the cake can kill items by falling on them
 falling_cakes_destroy_items: false
 
