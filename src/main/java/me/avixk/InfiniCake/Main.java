@@ -223,8 +223,6 @@ public class Main extends JavaPlugin implements Listener {
         if(currentlyRespawningCakes.contains(loc.getBlock())){
             return;
         }
-        currentlyRespawningCakes.add(loc.getBlock());
-        CakeFile.removeInfiniCake(loc.getBlock());
         Location tospawn = loc;
         if(getConfig().getBoolean("disable_falling_cake")){
             loc.getBlock().setType(Material.CAKE);
@@ -240,29 +238,38 @@ public class Main extends JavaPlugin implements Listener {
                     tospawn = loc.clone().add(.5,x,.5);
                 }
             }
-            FallingBlock b = loc.getWorld().spawnFallingBlock(tospawn,Bukkit.createBlockData(Material.CAKE));
-            b.setHurtEntities(getConfig().getBoolean("falling_cakes_destroy_items") || getConfig().getBoolean("falling_cakes_damage_living_entities"));
-            b.setDropItem(false);
-            b.setMetadata("infinicake",new FixedMetadataValue(this,""));
-            final int[] ticks = {0};
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if(ticks[0]++ > 100){
-                        currentlyRespawningCakes.remove(loc.getBlock());
-                        cancel();
-                        return;
-                    }
-                    if(b.isDead()){
-                        if(!b.getLocation().getBlock().getType().equals(Material.CAKE) && getConfig().getBoolean("drop_infinicake_on_break")){
-                            b.getWorld().dropItemNaturally(b.getLocation().clone().add(-.5,0,-.5),infinicake.clone());
+            if(loc.getBlock().equals(tospawn.getBlock())){
+                loc.getBlock().setType(Material.CAKE);
+                tospawn = loc.add(.5,0,.5);
+            }else {
+                currentlyRespawningCakes.add(loc.getBlock());
+                CakeFile.removeInfiniCake(loc.getBlock());
+
+                FallingBlock b = loc.getWorld().spawnFallingBlock(tospawn,Bukkit.createBlockData(Material.CAKE));
+                b.setHurtEntities(getConfig().getBoolean("falling_cakes_destroy_items") || getConfig().getBoolean("falling_cakes_damage_living_entities"));
+                b.setDropItem(false);
+                b.setMetadata("infinicake",new FixedMetadataValue(this,""));
+                final int[] ticks = {0};
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if(ticks[0]++ > 100){
+                            currentlyRespawningCakes.remove(loc.getBlock());
+                            cancel();
+                            return;
                         }
-                        currentlyRespawningCakes.remove(loc.getBlock());
-                        cancel();
-                        return;
+                        if(b.isDead()){
+                            if(!b.getLocation().getBlock().getType().equals(Material.CAKE) && getConfig().getBoolean("drop_infinicake_on_break")){
+                                b.getWorld().dropItemNaturally(b.getLocation().clone().add(-.5,0,-.5),infinicake.clone());
+                            }
+                            currentlyRespawningCakes.remove(loc.getBlock());
+                            cancel();
+                            return;
+                        }
                     }
-                }
-            }.runTaskTimer(this,1,1);
+                }.runTaskTimer(this,1,1);
+            }
+
         }
         if(effects && getConfig().getBoolean("infinicake_respawn_particles"))tospawn.getWorld().spawnParticle(Particle.BLOCK_DUST, tospawn.clone().add(0,.2,0), 50, .5,.3,.5, Material.CAKE.createBlockData());
         if(effects && getConfig().getBoolean("infinicake_respawn_pop"))tospawn.getWorld().playSound(tospawn.clone().add(0,.5,0), Sound.ENTITY_CHICKEN_EGG,1,.7F);
