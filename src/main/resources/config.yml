@@ -1,36 +1,38 @@
+ # Enable this if you want ALL cakes to be infinite
+all_cakes_are_infinite: false
 
-# Spawn particles when an infinicake respawns after being eaten
+ # Spawn particles when an infinicake respawns after being eaten
 infinicake_respawn_particles: true
 
-# Play a chicken egg pop sound when an infinicake respawns
+ # Play a chicken egg pop sound when an infinicake respawns
 infinicake_respawn_pop: true
 
-# set to true to set the block to cake during respawn instead of spawning a fallingblock
+ # Set to true to set the block to cake during respawn instead of spawning a fallingblock
 disable_falling_cake: false
 
-# true will drop an infinicake when an infinicake is broken in survival mode
+ # true will drop an infinicake when an infinicake is broken in survival mode
 drop_infinicake_on_break: true
 
-# amount of food saturation to give when eating cake
+ # Amount of food saturation to give when eating cake
 cake_saturation: 2 # (Double) vanilla cakes give 0.4 saturation
 cake_food_level: 2 # (Integer) vanilla cakes give 2 food (IF THIS IS NOT 2, VISUAL GLITCHES OCCUR!)
 
-# determines if the cake can kill items by falling on them
+ # Determines if the cake can kill items by falling on them
 falling_cakes_destroy_items: false
 
-# determines if falling cakes can damage players and mobs
+ # Determines if falling cakes can damage players and mobs
 falling_cakes_damage_living_entities: true
 
-# you may change the name of the infinicake item, set to '' to disable
+ # You may change the name of the infinicake item, set to '' to disable
 infinicake_item_name: '&bInfiniCake'
 
-# true allows players to put infinity books on cakes in anvils.
+ # true allows players to put infinity books on cakes in anvils.
 use_anvil_recipe: false
-# levels required to put an infinity book on a cake (if enabled), anything over 39 will not work correctly.
+ # Levels required to put an infinity book on a cake (if enabled), anything over 39 will not work correctly.
 anvil_cost: 30
 
-# Adds a crafting recipe for infinicakes
-# Delete entire ingredient entry to have blank crafting slots
+ # Adds a crafting recipe for infinicakes
+ # Delete entire ingredient entry to have blank crafting slots
 infinicake_crafting_recipe: true
 recipe:
   shapeless:

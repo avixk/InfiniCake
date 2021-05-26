@@ -38,6 +38,7 @@ public class Main extends JavaPlugin implements Listener {
     static Plugin plugin;
     static ItemStack infinicake = null;
     static boolean useAnvil = false;
+    static boolean allCakesInfinite = false;
     static List<Block> currentlyRespawningCakes = new ArrayList<>();
     @Override
     public void onEnable() {
@@ -45,6 +46,7 @@ public class Main extends JavaPlugin implements Listener {
         CakeFile.init();
         saveDefaultConfig();
         useAnvil = getConfig().getBoolean("use_anvil_recipe");
+        allCakesInfinite = getConfig().getBoolean("all_cakes_are_infinite");
         infinicake = new ItemStack(Material.CAKE);
         ItemMeta cakemeta = infinicake.getItemMeta();
         //List<String> cakelore = new ArrayList<>();
@@ -195,7 +197,7 @@ public class Main extends JavaPlugin implements Listener {
         if(e.getClickedBlock()==null)return;
         if(e.getClickedBlock().getBlockData() instanceof Cake){
             Cake cake = (Cake) e.getClickedBlock().getBlockData();
-            if(CakeFile.isInfiniCake(e.getClickedBlock())){
+            if(allCakesInfinite || CakeFile.isInfiniCake(e.getClickedBlock())){
                 if(e.getPlayer().getFoodLevel() < 20){
                     e.getPlayer().setSaturation((float) (e.getPlayer().getSaturation() + getConfig().getDouble("cake_saturation") - 0.4F));
                     e.getPlayer().setFoodLevel((e.getPlayer().getFoodLevel() + getConfig().getInt("cake_food_level") - 2));
@@ -243,12 +245,14 @@ public class Main extends JavaPlugin implements Listener {
                 tospawn = loc.add(.5,0,.5);
             }else {
                 currentlyRespawningCakes.add(loc.getBlock());
-                CakeFile.removeInfiniCake(loc.getBlock());
 
                 FallingBlock b = loc.getWorld().spawnFallingBlock(tospawn,Bukkit.createBlockData(Material.CAKE));
                 b.setHurtEntities(getConfig().getBoolean("falling_cakes_destroy_items") || getConfig().getBoolean("falling_cakes_damage_living_entities"));
                 b.setDropItem(false);
-                b.setMetadata("infinicake",new FixedMetadataValue(this,""));
+                if(CakeFile.isInfiniCake(loc.getBlock())){
+                    CakeFile.removeInfiniCake(loc.getBlock());
+                    b.setMetadata("infinicake",new FixedMetadataValue(this,""));
+                }
                 final int[] ticks = {0};
                 new BukkitRunnable() {
                     @Override
